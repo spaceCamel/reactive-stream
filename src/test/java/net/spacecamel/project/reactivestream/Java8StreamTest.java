@@ -20,7 +20,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ApplicationTest extends TestCase
+public class Java8StreamTest extends TestCase
 {
     @Mock
     Consumer<Object> consumer;
@@ -32,19 +32,19 @@ public class ApplicationTest extends TestCase
 
     final Stream<Object> stream = Stream.generate(Object::new).limit(streamLength);
 
-    Application<Object> application;
+    Java8Stream<Object> java8Stream;
 
     @Before
     public void instantiateApplication()
     {
-        application = new Application<>(stream, consumer, predicate);
+        java8Stream = new Java8Stream<>(stream, consumer, predicate);
     }
 
     @Test
     public void iteratesOverEveryElementOfTheInputList()
     {
         when(predicate.test(any())).thenReturn(true);
-        application.run();
+        java8Stream.run();
         verify(consumer, times(streamLength)).accept(any());
     }
 
@@ -52,7 +52,7 @@ public class ApplicationTest extends TestCase
     public void skipsAllElementsIfThePredicate()
     {
         when(predicate.test(any())).thenReturn(false);
-        application.run();
+        java8Stream.run();
         verify(consumer, never()).accept(any());
     }
 
@@ -63,7 +63,7 @@ public class ApplicationTest extends TestCase
         final Object second = new Object();
         final Stream<Object> stream = Stream.of(first, second);
         when(predicate.test(any())).thenReturn(false, true);
-        new Application<>(stream, consumer, predicate).run();
+        new Java8Stream<>(stream, consumer, predicate).run();
         verify(consumer, never()).accept(first);
         verify(consumer).accept(second);
     }
@@ -72,7 +72,7 @@ public class ApplicationTest extends TestCase
     public void rethrowsCollaboratorException()
     {
         when(predicate.test(any())).thenThrow(new TestException());
-        application.run();
+        java8Stream.run();
         verify(predicate).test(any());
         verify(consumer, never()).accept(any());
     }
@@ -80,14 +80,14 @@ public class ApplicationTest extends TestCase
     @Test
     public void predicatesAreOptional()
     {
-        new Application<>(stream, consumer).run();
+        new Java8Stream<>(stream, consumer).run();
         verify(consumer, times(streamLength)).accept(any());
     }
 
     @Test
     public void ifEmptyInputThenNoInteractions()
     {
-        new Application<>(Stream.empty(), consumer).run();
+        new Java8Stream<>(Stream.empty(), consumer).run();
         verifyNoMoreInteractions(consumer, predicate);
     }
 
