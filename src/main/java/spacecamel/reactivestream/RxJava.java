@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 
 import static org.apache.commons.lang3.ArrayUtils.isEmpty;
 
-public class RxStream<T>
+public class RxJava<T>
 {
     private final Observable<T> messages;
 
@@ -17,7 +17,7 @@ public class RxStream<T>
     private final Predicate<T> filter;
 
     @SafeVarargs
-    public RxStream(Observable<T> items, Observer<T> consumer, Predicate<T>... filters)
+    public RxJava(Observable<T> items, Observer<T> consumer, Predicate<T>... filters)
     {
         this.messages = items;
         this.filter = isEmpty(filters) ? Predicates.alwaysTrue : Predicates.all(filters);

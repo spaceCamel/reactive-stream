@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 
 import static org.apache.commons.lang3.ArrayUtils.isEmpty;
 
-public class Java8Stream<T>
+public class Java8<T>
 {
     private final Stream<T> messages;
 
@@ -17,7 +17,7 @@ public class Java8Stream<T>
     private final Predicate<T> filter;
 
     @SafeVarargs
-    public Java8Stream(Stream<T> items, Consumer<T> consumer, Predicate<T>... filters)
+    public Java8(Stream<T> items, Consumer<T> consumer, Predicate<T>... filters)
     {
         this.messages = items;
         this.filter = isEmpty(filters) ? Predicates.alwaysTrue : Predicates.all(filters);
