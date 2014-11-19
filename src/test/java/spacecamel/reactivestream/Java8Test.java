@@ -77,7 +77,7 @@ public class Java8Test extends TestCase
     }
 
     @Test
-    public void predicatesAreOptional()
+    public void noFiltersDefaultsToPassThrough()
     {
         new Java8<>(stream, consumer).run();
         verify(consumer, times(streamLength)).accept(any());
