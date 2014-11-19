@@ -4,7 +4,6 @@ import rx.Observable;
 import rx.Observer;
 
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 public class RxProcessor<T>
 {
@@ -14,11 +13,10 @@ public class RxProcessor<T>
 
     private final Predicate<T> filter;
 
-    @SafeVarargs
-    public RxProcessor(Observable<T> items, Observer<T> consumer, Predicate<T>... filters)
+    public RxProcessor(Observable<T> items, Observer<T> consumer, Predicate<T> filter)
     {
         this.messages = items;
-        this.filter = Stream.of(filters).reduce(__ -> true, Predicate::and);
+        this.filter = filter;
         this.consumer = consumer;
     }
 

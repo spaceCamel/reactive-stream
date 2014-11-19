@@ -17,7 +17,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -84,18 +83,12 @@ public class RxProcessorTest extends TestCase
     }
 
     @Test
-    public void noFiltersDefaultsToPassThrough()
-    {
-        new RxProcessor<>(input, consumer).run();
-        verify(consumer, times(inputLength)).onNext(any());
-    }
-
-    @Test
     public void ifEmptyInputThenNoInteractions()
     {
-        new RxProcessor<>(Observable.empty(), consumer).run();
+        new RxProcessor<>(Observable.empty(), consumer, predicate).run();
+        verify(consumer, never()).onNext(any());
+        verify(predicate, never()).test(any());
         verify(consumer).onCompleted();
-        verifyNoMoreInteractions(predicate);
     }
 
     static class TestException extends RuntimeException

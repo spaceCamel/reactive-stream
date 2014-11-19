@@ -12,11 +12,10 @@ public class StreamProcessor<T>
 
     private final Predicate<T> filter;
 
-    @SafeVarargs
-    public StreamProcessor(Stream<T> items, Consumer<T> consumer, Predicate<T>... filters)
+    public StreamProcessor(Stream<T> items, Consumer<T> consumer, Predicate<T> filter)
     {
         this.messages = items;
-        this.filter = Stream.of(filters).reduce(__ -> true, Predicate::and);
+        this.filter = filter;
         this.consumer = consumer;
     }
 

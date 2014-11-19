@@ -16,7 +16,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -76,17 +75,11 @@ public class StreamProcessorTest extends TestCase
     }
 
     @Test
-    public void noFiltersDefaultsToPassThrough()
-    {
-        new StreamProcessor<>(input, consumer).run();
-        verify(consumer, times(inputLength)).accept(any());
-    }
-
-    @Test
     public void ifEmptyInputThenNoInteractions()
     {
-        new StreamProcessor<>(Stream.empty(), consumer).run();
-        verifyNoMoreInteractions(consumer, predicate);
+        new StreamProcessor<>(Stream.empty(), consumer, predicate).run();
+        verify(consumer, never()).accept(any());
+        verify(predicate, never()).test(any());
     }
 
     static class TestException extends RuntimeException
