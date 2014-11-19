@@ -85,7 +85,7 @@ public class RxJavaTest extends TestCase
     }
 
     @Test
-    public void predicatesAreOptional()
+    public void noFiltersDefaultsToPassThrough()
     {
         new RxJava<>(stream, consumer).run();
         verify(consumer, times(streamLength)).onNext(any());

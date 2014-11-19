@@ -1,12 +1,8 @@
 package spacecamel.reactivestream;
 
-import spacecamel.reactivestream.util.Predicates;
-
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-
-import static org.apache.commons.lang3.ArrayUtils.isEmpty;
 
 public class Java8<T>
 {
@@ -20,7 +16,7 @@ public class Java8<T>
     public Java8(Stream<T> items, Consumer<T> consumer, Predicate<T>... filters)
     {
         this.messages = items;
-        this.filter = isEmpty(filters) ? Predicates.alwaysTrue : Predicates.all(filters);
+        this.filter = Stream.of(filters).reduce(__ -> true, Predicate::and);
         this.consumer = consumer;
     }
 

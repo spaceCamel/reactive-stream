@@ -1,12 +1,10 @@
 package spacecamel.reactivestream;
 
-import spacecamel.reactivestream.util.Predicates;
 import rx.Observable;
 import rx.Observer;
 
 import java.util.function.Predicate;
-
-import static org.apache.commons.lang3.ArrayUtils.isEmpty;
+import java.util.stream.Stream;
 
 public class RxJava<T>
 {
@@ -20,7 +18,7 @@ public class RxJava<T>
     public RxJava(Observable<T> items, Observer<T> consumer, Predicate<T>... filters)
     {
         this.messages = items;
-        this.filter = isEmpty(filters) ? Predicates.alwaysTrue : Predicates.all(filters);
+        this.filter = Stream.of(filters).reduce(__ -> true, Predicate::and);
         this.consumer = consumer;
     }
 
