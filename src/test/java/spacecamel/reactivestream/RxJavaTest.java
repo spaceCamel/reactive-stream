@@ -29,16 +29,16 @@ public class RxJavaTest extends TestCase
     @Mock
     Predicate<Object> predicate;
 
-    final int streamLength = new Random().nextInt(100) + 1;
+    final int inputLength = new Random().nextInt(100) + 1;
 
-    final Observable<Object> stream = Observable.from(Stream.generate(Object::new).limit(streamLength).toArray());
+    final Observable<Object> input = Observable.from(Stream.generate(Object::new).limit(inputLength).toArray());
 
     RxJava<Object> rxJava;
 
     @Before
     public void instantiateApplication()
     {
-        rxJava = new RxJava<>(stream, consumer, predicate);
+        rxJava = new RxJava<>(input, consumer, predicate);
     }
 
     @Test
@@ -46,7 +46,7 @@ public class RxJavaTest extends TestCase
     {
         when(predicate.test(any())).thenReturn(true);
         rxJava.run();
-        verify(consumer, times(streamLength)).onNext(any());
+        verify(consumer, times(inputLength)).onNext(any());
         verify(consumer).onCompleted();
     }
 
@@ -64,9 +64,8 @@ public class RxJavaTest extends TestCase
     {
         final Object first = new Object();
         final Object second = new Object();
-        final Observable<Object> stream = Observable.just(first, second);
         when(predicate.test(any())).thenReturn(false, true);
-        new RxJava<>(stream, consumer, predicate).run();
+        new RxJava<>(Observable.just(first, second), consumer, predicate).run();
         verify(consumer, never()).onNext(first);
         verify(consumer).onNext(second);
         verify(consumer).onCompleted();
@@ -87,8 +86,8 @@ public class RxJavaTest extends TestCase
     @Test
     public void noFiltersDefaultsToPassThrough()
     {
-        new RxJava<>(stream, consumer).run();
-        verify(consumer, times(streamLength)).onNext(any());
+        new RxJava<>(input, consumer).run();
+        verify(consumer, times(inputLength)).onNext(any());
     }
 
     @Test

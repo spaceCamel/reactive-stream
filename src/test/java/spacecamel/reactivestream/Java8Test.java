@@ -28,16 +28,16 @@ public class Java8Test extends TestCase
     @Mock
     Predicate<Object> predicate;
 
-    final int streamLength = new Random().nextInt(100) + 1;
+    final int inputLength = new Random().nextInt(100) + 1;
 
-    final Stream<Object> stream = Stream.generate(Object::new).limit(streamLength);
+    final Stream<Object> input = Stream.generate(Object::new).limit(inputLength);
 
     Java8<Object> java8;
 
     @Before
     public void instantiateApplication()
     {
-        java8 = new Java8<>(stream, consumer, predicate);
+        java8 = new Java8<>(input, consumer, predicate);
     }
 
     @Test
@@ -45,7 +45,7 @@ public class Java8Test extends TestCase
     {
         when(predicate.test(any())).thenReturn(true);
         java8.run();
-        verify(consumer, times(streamLength)).accept(any());
+        verify(consumer, times(inputLength)).accept(any());
     }
 
     @Test
@@ -61,9 +61,8 @@ public class Java8Test extends TestCase
     {
         final Object first = new Object();
         final Object second = new Object();
-        final Stream<Object> stream = Stream.of(first, second);
         when(predicate.test(any())).thenReturn(false, true);
-        new Java8<>(stream, consumer, predicate).run();
+        new Java8<>(Stream.of(first, second), consumer, predicate).run();
         verify(consumer, never()).accept(first);
         verify(consumer).accept(second);
     }
@@ -79,8 +78,8 @@ public class Java8Test extends TestCase
     @Test
     public void noFiltersDefaultsToPassThrough()
     {
-        new Java8<>(stream, consumer).run();
-        verify(consumer, times(streamLength)).accept(any());
+        new Java8<>(input, consumer).run();
+        verify(consumer, times(inputLength)).accept(any());
     }
 
     @Test
