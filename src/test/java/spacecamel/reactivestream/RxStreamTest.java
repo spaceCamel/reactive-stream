@@ -1,4 +1,4 @@
-package net.spacecamel.project.reactivestream;
+package spacecamel.reactivestream;
 
 import junit.framework.TestCase;
 import org.junit.Before;

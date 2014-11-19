@@ -1,4 +1,4 @@
-package net.spacecamel.project.reactivestream.util;
+package spacecamel.reactivestream.util;
 
 import java.util.Arrays;
 import java.util.List;

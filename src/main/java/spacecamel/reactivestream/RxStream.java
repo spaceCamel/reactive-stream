@@ -1,6 +1,6 @@
-package net.spacecamel.project.reactivestream;
+package spacecamel.reactivestream;
 
-import net.spacecamel.project.reactivestream.util.Predicates;
+import spacecamel.reactivestream.util.Predicates;
 import rx.Observable;
 import rx.Observer;
 
