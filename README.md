@@ -4,4 +4,4 @@ There is a test class for each illustrating how an application will interact wit
 
 - normal flow
 - empty input stream
-- processing step throwing exeption
+- intermediate step throwing exeption
