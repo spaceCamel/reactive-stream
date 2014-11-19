@@ -22,6 +22,6 @@ public class StreamProcessor<T>
 
     public void run()
     {
-        messages.filter(filter).forEachOrdered(consumer);
+        messages.filter(filter).forEach(consumer);
     }
 }
