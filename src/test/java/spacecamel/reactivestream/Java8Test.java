@@ -73,7 +73,6 @@ public class Java8Test extends TestCase
     {
         when(predicate.test(any())).thenThrow(new TestException());
         java8.run();
-        verify(predicate).test(any());
         verify(consumer, never()).accept(any());
     }
 
