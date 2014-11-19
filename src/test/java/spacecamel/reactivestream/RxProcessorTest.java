@@ -6,9 +6,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import rx.Observable;
+import rx.Observer;
 
 import java.util.Random;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -20,40 +21,42 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class Java8Test extends TestCase
+public class RxProcessorTest extends TestCase
 {
     @Mock
-    Consumer<Object> consumer;
+    Observer<Object> consumer;
 
     @Mock
     Predicate<Object> predicate;
 
     final int inputLength = new Random().nextInt(100) + 1;
 
-    final Stream<Object> input = Stream.generate(Object::new).limit(inputLength);
+    final Observable<Object> input = Observable.from(Stream.generate(Object::new).limit(inputLength).toArray());
 
-    Java8<Object> java8;
+    RxProcessor<Object> processor;
 
     @Before
     public void instantiateApplication()
     {
-        java8 = new Java8<>(input, consumer, predicate);
+        processor = new RxProcessor<>(input, consumer, predicate);
     }
 
     @Test
     public void iteratesOverEveryElementOfTheInputList()
     {
         when(predicate.test(any())).thenReturn(true);
-        java8.run();
-        verify(consumer, times(inputLength)).accept(any());
+        processor.run();
+        verify(consumer, times(inputLength)).onNext(any());
+        verify(consumer).onCompleted();
     }
 
     @Test
     public void skipsAllElementsIfThePredicate()
     {
         when(predicate.test(any())).thenReturn(false);
-        java8.run();
-        verify(consumer, never()).accept(any());
+        processor.run();
+        verify(consumer, never()).onNext(any());
+        verify(consumer).onCompleted();
     }
 
     @Test
@@ -62,31 +65,37 @@ public class Java8Test extends TestCase
         final Object first = new Object();
         final Object second = new Object();
         when(predicate.test(any())).thenReturn(false, true);
-        new Java8<>(Stream.of(first, second), consumer, predicate).run();
-        verify(consumer, never()).accept(first);
-        verify(consumer).accept(second);
+        new RxProcessor<>(Observable.just(first, second), consumer, predicate).run();
+        verify(consumer, never()).onNext(first);
+        verify(consumer).onNext(second);
+        verify(consumer).onCompleted();
     }
 
-    @Test(expected = TestException.class)
+    @Test
     public void rethrowsCollaboratorException()
     {
-        when(predicate.test(any())).thenThrow(new TestException());
-        java8.run();
-        verify(consumer, never()).accept(any());
+        final TestException exception = new TestException();
+        when(predicate.test(any())).thenThrow(exception);
+        processor.run();
+        verify(predicate).test(any());
+        verify(consumer, never()).onNext(any());
+        verify(consumer).onError(exception);
+        verify(consumer, never()).onCompleted();
     }
 
     @Test
     public void noFiltersDefaultsToPassThrough()
     {
-        new Java8<>(input, consumer).run();
-        verify(consumer, times(inputLength)).accept(any());
+        new RxProcessor<>(input, consumer).run();
+        verify(consumer, times(inputLength)).onNext(any());
     }
 
     @Test
     public void ifEmptyInputThenNoInteractions()
     {
-        new Java8<>(Stream.empty(), consumer).run();
-        verifyNoMoreInteractions(consumer, predicate);
+        new RxProcessor<>(Observable.empty(), consumer).run();
+        verify(consumer).onCompleted();
+        verifyNoMoreInteractions(predicate);
     }
 
     static class TestException extends RuntimeException

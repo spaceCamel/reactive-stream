@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-public class Java8<T>
+public class StreamProcessor<T>
 {
     private final Stream<T> messages;
 
@@ -13,7 +13,7 @@ public class Java8<T>
     private final Predicate<T> filter;
 
     @SafeVarargs
-    public Java8(Stream<T> items, Consumer<T> consumer, Predicate<T>... filters)
+    public StreamProcessor(Stream<T> items, Consumer<T> consumer, Predicate<T>... filters)
     {
         this.messages = items;
         this.filter = Stream.of(filters).reduce(__ -> true, Predicate::and);
