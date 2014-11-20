@@ -8,10 +8,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import rx.Observable;
 import rx.Observer;
-import spacecamel.reactivestream.util.WaitingObserverFinishes;
+import rx.schedulers.TestScheduler;
 
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -30,19 +29,19 @@ public class RxProcessorTest extends TestCase
     @Mock
     Predicate<Object> predicate;
 
-    WaitingObserverFinishes<Object> monitoredConsumer;
-
     final int inputLength = new Random().nextInt(100) + 1;
 
-    final Observable<Object> input = Observable.from(Stream.generate(Object::new).limit(inputLength).toArray());
+    private final TestScheduler scheduler = new TestScheduler();
+
+    final Observable<Object> input =
+            Observable.from(() -> Stream.generate(Object::new).limit(inputLength).iterator()).subscribeOn(scheduler);
 
     RxProcessor<Object> processor;
 
     @Before
     public void instantiateApplication()
     {
-        monitoredConsumer = new WaitingObserverFinishes<>(consumer, 1, TimeUnit.SECONDS);
-        processor = new RxProcessor<>(input, monitoredConsumer, predicate);
+        processor = new RxProcessor<>(input, consumer, predicate);
     }
 
     @Test
@@ -69,7 +68,7 @@ public class RxProcessorTest extends TestCase
         final Object first = new Object();
         final Object second = new Object();
         when(predicate.test(any())).thenReturn(false, true);
-        runAndWait(new RxProcessor<>(Observable.just(first, second), monitoredConsumer, predicate));
+        runAndWait(new RxProcessor<>(Observable.just(first, second), consumer, predicate));
         verify(consumer, never()).onNext(first);
         verify(consumer).onNext(second);
         verify(consumer).onCompleted();
@@ -81,7 +80,6 @@ public class RxProcessorTest extends TestCase
         final TestException exception = new TestException();
         when(predicate.test(any())).thenThrow(exception);
         runAndWait(processor);
-        verify(predicate).test(any());
         verify(consumer, never()).onNext(any());
         verify(consumer).onError(exception);
         verify(consumer, never()).onCompleted();
@@ -90,7 +88,7 @@ public class RxProcessorTest extends TestCase
     @Test
     public void ifEmptyInputThenNoInteractions()
     {
-        runAndWait(new RxProcessor<>(Observable.empty(), monitoredConsumer, predicate));
+        runAndWait(new RxProcessor<>(Observable.empty(), consumer, predicate));
         verify(consumer, never()).onNext(any());
         verify(predicate, never()).test(any());
         verify(consumer).onCompleted();
@@ -99,7 +97,7 @@ public class RxProcessorTest extends TestCase
     private void runAndWait(final RxProcessor<Object> processor)
     {
         processor.run();
-        monitoredConsumer.waitTermination();
+        scheduler.triggerActions();
     }
 
     static class TestException extends RuntimeException
