@@ -10,6 +10,7 @@ import rx.Observable;
 import rx.Observer;
 
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -30,7 +31,8 @@ public class RxProcessorTest extends TestCase
 
     final int inputLength = new Random().nextInt(100) + 1;
 
-    final Observable<Object> input = Observable.from(Stream.generate(Object::new).limit(inputLength).toArray());
+    final Observable<Object> input = Observable.from(Stream.generate(Object::new).limit(inputLength).toArray())
+                                               .delay(100, TimeUnit.MILLISECONDS);
 
     RxProcessor<Object> processor;
 
