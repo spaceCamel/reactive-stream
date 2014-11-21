@@ -9,10 +9,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 import rx.Observable;
 import rx.Observer;
 import rx.schedulers.TestScheduler;
+import spacecamel.reactivestream.util.InfiniteIterator;
 
 import java.util.Random;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
@@ -34,7 +34,7 @@ public class RxProcessorTest extends TestCase
     private final TestScheduler scheduler = new TestScheduler();
 
     final Observable<Object> input =
-            Observable.from(() -> Stream.generate(Object::new).limit(inputLength).iterator()).subscribeOn(scheduler);
+            Observable.from(() -> InfiniteIterator.of(Object::new)).limit(inputLength).subscribeOn(scheduler);
 
     RxProcessor<Object> processor;
 
